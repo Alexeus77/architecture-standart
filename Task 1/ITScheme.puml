@@ -1,0 +1,51 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма Интеграций Приложений
+caption Процесс открытия депозита и расчета ставок в Банке «Стандарт»
+
+Person(customer, "Клиент")
+
+System_Boundary(bank, "Банк Стандарт") {
+
+    Container(abs, "АБС", "Автоматизированная Банковская Система")
+    Container(deposit_rate_excel, "Excel файл (Ставки Депозитов)")
+    
+    Boundary(branch_office_boundary, "Фронт-офис (Отделение)") {
+        Person(front_office, "Сотрудник Отделения", "Получает заявки на депозиты и выдает документы.")
+    }
+
+    Boundary(back_office_deposit_boundary, "Бэк-офис (Депозиты)") {
+        Person(back_office, "Сотрудник Бэк-офиса (Депозиты)", "Специалист по депозитным продуктам, определяет ставки.")
+    }
+
+    Boundary(credit_department_boundary, "Отдел Кредитования") {
+        Person(credit_dept, "Сотрудник Отдела Кредитования", "Специалист по кредитам и кредитному риску, предоставляет данные.")
+    }
+}
+
+System_Ext(call_center_system, "Система Кол-центра")
+System_Ext(sms_gateway, "SMS-шлюз", "Внешний сервис для отправки СМС-оповещений.")
+
+Person(call_center_staff, "Сотрудник Кол-центра")
+
+' Открытие депозита без предварительного звонка
+Rel(customer, front_office, "Подает заявку на открытие депозита")
+Rel(front_office, back_office, "Запрашивает ставку", "Электронное письмо")
+Rel(back_office, front_office, "Отправляет ставку", "Электронное письмо")
+Rel(front_office, abs, "Создает депозит и загружает документы")
+
+
+' Звонок в кол-центр
+Rel(customer, call_center_staff, "Звонит, уточняет детали открытия депозита")
+Rel(call_center_staff, call_center_system, "Заводит обращение")
+Rel(call_center_system, abs, "Передает обращение")
+Rel(back_office, abs, "Обрабатывает заявки из кол-центра, определяет ставки")
+Rel(abs, sms_gateway, "Отправляет СМС-оповещение клиенту")
+Rel(sms_gateway, customer, "Доставляет СМС-оповещение")
+
+' Определение специальных ставок для VIP-клиентов
+Rel(back_office, credit_dept, "Запрашивает данные для спец. ставок", "Электронное письмо")
+Rel(credit_dept, abs, "Анализирует кредитный риск клиента (свой раздел)")
+Rel(credit_dept, front_office, "Отправляет ставку", "Электронное письмо")
+@enduml
