@@ -1,0 +1,35 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Системы и пользователи
+Person(newClient, "Новый клиент", "Пользователь, не имеющий счёт в банке")
+Person(bankClient, "Клиент интернет-банка", "Существующий клиент банка")
+Person(callCenterAgent, "Менеджер кол-центра", "Оператор, обрабатывающий заявки с сайта")
+Person(backOfficeManager, "Менеджер бэк-офиса", "Сотрудник, подтверждающий условия в АБС")
+
+
+System_Boundary(c1, "Банк Стандарт") {
+  Container(webSite, "Cайт банка", "PHP/React.js")
+  Container(callCenterSystem, "Система кол-центра", "веб-интерфейс на React.js, бэкенд на Java Spring Boot и базы Postgres", "Обрабатывает заявки от новых клиентов, поступившие с сайта")
+  Container(branchOffice, "Офис банка")
+  Container(internetBank, "Интернет-банк", "ASP.NET MVC 4.5 и СУБД MS SQL")
+  Container(backOffice, "Бэк-офис депозитов")
+  Container(smsService, "Сервис СМС", "Отправляет клиентам СМС-уведомления")
+  Container(abs, "АБС", "Delphi / Oracle", "Автоматизированная банковская система, в которой хранятся данные клиентов и депозитов")
+}
+
+' Взаимодействия
+newClient --> webSite : UC1, UC2 — Просмотр ставок, подача заявки
+webSite --> callCenterSystem : UC3 — Передача заявки
+callCenterAgent --> callCenterSystem : UC4 — Обработка заявки
+newClient --> branchOffice : UC5 — Визит в отделение
+
+bankClient --> internetBank : UC6, UC7 — Просмотр ставок, подача заявки
+internetBank --> backOffice : UC8 — Заявка в бэк-офис
+backOfficeManager --> backOffice : UC9 — Подтверждение в АБС
+backOffice --> abs : Подтверждение условий
+
+abs --> smsService : UC10 — Отправка СМС
+smsService --> bankClient : СМС с информацией по депозиту
+
+@enduml
