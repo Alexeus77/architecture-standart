@@ -1,0 +1,22 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Пользователи
+Person(callCenterAgent, "Менеджер кол-центра")
+Person(partnerCallCenterAgent, "Менеджер партнёрского кол-центра")
+Person(backOfficeManager, "Менеджер бэк-офиса")
+
+' Системы
+Container(callCenterSystem, "Система кол-центра")
+
+System_Ext(partnerCallCenterSystem, "Система партнёрского кол-центра")
+
+' Взаимодействия
+callCenterAgent --> callCenterSystem : Просмотр ставок
+partnerCallCenterAgent --> partnerCallCenterSystem : Просмотр ставок
+
+backOfficeManager --> partnerCallCenterSystem : Передача файла через почтовый сервис
+backOfficeManager --> callCenterSystem : Передача файла через почтовый сервис
+
+
+@enduml
